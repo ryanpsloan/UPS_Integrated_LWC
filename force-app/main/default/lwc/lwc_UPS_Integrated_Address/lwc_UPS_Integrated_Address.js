@@ -169,15 +169,17 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
         .then(result => {
             console.log(result);
             const data = JSON.parse(result);
-           
+            this.fromError = undefined;
             if(data.XAVResponse != undefined){
                 if(data.XAVResponse.Response.ResponseStatus.Description == "Success"){
-                    if(data.XAVResponse.Candidate != undefined){
+                    if(data.XAVResponse.Candidate != undefined && !Array.isArray(data.XAVResponse.Candidate)){
                         this.template.querySelector('.fromStreet').value = this.fromAddress.street = data.XAVResponse.Candidate.AddressKeyFormat.AddressLine;
                         this.template.querySelector('.fromCity').value = this.fromAddress.city = data.XAVResponse.Candidate.AddressKeyFormat.PoliticalDivision2;
                         this.template.querySelector('.fromState').value = this.fromAddress.state = data.XAVResponse.Candidate.AddressKeyFormat.PoliticalDivision1;
                         this.template.querySelector('.fromZip').value = this.fromAddress.postalCode = data.XAVResponse.Candidate.AddressKeyFormat.PostcodePrimaryLow;
                         this.fromIsValid = true;
+                    }else if(data.XAVResponse.Candidate != undefined && Array.isArray(data.XAVResponse.Candidate)){
+                        this.fromIsValid = false;
                     }
                 }    
                 else{
@@ -188,7 +190,13 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
             }    
         }).catch(error => {
             console.log(error);
-            this.fromError = error;
+            console.log(typeof error);
+            this.fromIsValid = false;
+            if(typeof error == 'object'){
+                this.fromError = error.body.message;
+            }else{
+                this.fromError = error;
+            }
         });
     }
 
@@ -198,15 +206,17 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
         .then(result => {
             console.log(result);
             const data = JSON.parse(result);
-           
+            this.toError = undefined;
             if(data.XAVResponse != undefined){
                 if(data.XAVResponse.Response.ResponseStatus.Description == "Success"){
-                    if(data.XAVResponse.Candidate != undefined){
+                    if(data.XAVResponse.Candidate != undefined && !Array.isArray(data.XAVResponse.Candidate)){
                         this.template.querySelector('.toStreet').value = this.toAddress.street = data.XAVResponse.Candidate.AddressKeyFormat.AddressLine;
                         this.template.querySelector('.toCity').value = this.toAddress.city = data.XAVResponse.Candidate.AddressKeyFormat.PoliticalDivision2;
                         this.template.querySelector('.toState').value = this.toAddress.state = data.XAVResponse.Candidate.AddressKeyFormat.PoliticalDivision1;
                         this.template.querySelector('.toZip').value = this.toAddress.postalCode = data.XAVResponse.Candidate.AddressKeyFormat.PostcodePrimaryLow;
                         this.toIsValid = true;
+                    }else if(data.XAVResponse.Candidate != undefined && Array.isArray(data.XAVResponse.Candidate)){
+                        this.toIsValid = false;
                     }
                 }    
                 else{
@@ -217,7 +227,13 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
             } 
         }).catch(error => {
             console.log(error);
-            this.toError = error;
+            console.log(typeof error);
+            this.toIsValid = false;
+            if(typeof error == 'object'){
+                this.toError = error.body.message;
+            }else{
+                this.toError = error;
+            }
         });
     }
 

@@ -19,7 +19,7 @@
                     <div class="slds-grid slds-grid_vertical">
                         <div class="slds-col">
                             <template if:true={fromError}>
-                                {fromError}
+                                <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">{fromError}</div>
                             </template>
                         </div>
                         <div class="slds-col">
@@ -56,7 +56,7 @@
                     <div class="slds-grid slds-grid_vertical">
                         <div class="slds-col">
                             <template if:true={toError}>
-                                {toError}
+                                <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">{toError}</div>
                             </template>
                         </div>
                         <div class="slds-col">

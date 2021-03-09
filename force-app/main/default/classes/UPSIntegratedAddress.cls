@@ -42,8 +42,25 @@ public  class UPSIntegratedAddress {
                 return JSON.serialize(UPS_JSON_ERROR_RESPONSE.parse(res.getBody()));
             }
 
+            String jsonReturn = null;
+            JSONParser parser = JSON.createParser(res.getBody());
+            while (parser.nextToken() != null) {
+                System.debug(parser.getCurrentName());
+                if(parser.getCurrentName() == 'Candidate'){
+                    parser.nextToken();
+                    System.debug(parser.getCurrentToken());
+                    if(parser.getCurrentToken() == JSONToken.START_ARRAY){
+                        jsonReturn = JSON.serialize(UPS_JSON_RESPONSE_ARRAY.parse(res.getBody()));
+                        break;
+                    }else{   
+                        jsonReturn = JSON.serialize(UPS_JSON_RESPONSE.parse(res.getBody()));
+                        break;
+                    }
+                }
+            }
+
             System.debug(res);            
-            return JSON.serialize(UPS_JSON_RESPONSE.parse(res.getBody()));
+            return jsonReturn;
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
