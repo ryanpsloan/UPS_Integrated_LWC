@@ -1,0 +1,128 @@
+<template>
+<div class="c-container">
+<lightning-card>
+    <div class="slds-theme_default">
+        <div class="slds-p-around_medium">
+            <lightning-progress-indicator type="path" current-step={selectedStep}>
+                <lightning-progress-step label="Step1" onstepfocus={selectStep1} value="Step1">
+                </lightning-progress-step>
+                <lightning-progress-step label="Step2" onstepfocus={selectStep2} value="Step2">
+                </lightning-progress-step>
+                <lightning-progress-step label="Step3" onstepfocus={selectStep3} value="Step3">
+                </lightning-progress-step>
+                <lightning-progress-step label="Step4" onstepfocus={selectStep4} value="Step4">
+                </lightning-progress-step>
+            </lightning-progress-indicator>
+            <lightning-tabset>
+                <template if:true={isSelectStep1}>
+                <lightning-tab label="Enter From Shipping Address">
+                    <div class="slds-grid slds-grid_vertical">
+                        <div class="slds-col">
+                            <template if:true={fromError}>
+                                {fromError}
+                            </template>
+                        </div>
+                        <div class="slds-col">
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input class="fromAddress fromStreet" type="text" label="Street" placeholder="Enter Street Address" name="street" value={fromAddress.street} required></lightning-input>
+                            </div>
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input class="fromAddress fromCity" type="text" label="City" placeholder="Enter City" name="city" value={fromAddress.city} required></lightning-input>
+                            </div>
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input class="fromAddress fromState" type="text" label="State" placeholder="Enter State" name="state" value={fromAddress.state} required></lightning-input>
+                            </div>
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input class="fromAddress fromZip" type="text" label="Postal Code" placeholder="Enter Postal Code" value={fromAddress.postalCode} name="postalCode" required></lightning-input>
+                            </div>
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input type="text" label="Country" value="United States" readonly></lightning-input>
+                            </div>
+                            <lightning-button label="Validate From Address" onclick={handleClickFrom} class="slds-m-left_x-small"></lightning-button>
+                        </div>
+                        <div class="slds-col">
+                            <template if:true={fromIsValid}>
+                                <div class="slds-align_absolute-center slds-text-color_success" style="height:5rem">Address is Valid</div>
+                            </template>
+                            <template if:false={fromIsValid}>
+                                <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">Address is Invalid, please check the details</div>
+                            </template>
+                        </div>
+                    </div>    
+                </lightning-tab>
+                </template>
+                <template if:true={isSelectStep2}>
+                    <lightning-tab label="Enter To Shipping Address">
+                    <div class="slds-grid slds-grid_vertical">
+                        <div class="slds-col">
+                            <template if:true={toError}>
+                                {toError}
+                            </template>
+                        </div>
+                        <div class="slds-col">
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input class="toAddress toStreet" type="text" label="Street" placeholder="Enter Street Address" name="street" value={toAddress.street} required></lightning-input>
+                            </div>
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input class="toAddress toCity" type="text" label="City" placeholder="Enter City" name="city"  value={toAddress.city} required></lightning-input>
+                            </div>
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input class="toAddress toState" type="text" label="State" placeholder="Enter State" name="state"  value={toAddress.state} required></lightning-input>
+                            </div>
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input class="toAddress toZip" type="text" label="Postal Code" placeholder="Enter Postal Code" name="postalCode"  value={toAddress.postalCode} required></lightning-input>
+                            </div>
+                            <div class="slds-p-around_medium lgc-bg">
+                                <lightning-input type="text" label="Country" value="United States" readonly></lightning-input>
+                            </div>
+                            <lightning-button label="Validate To Address" onclick={handleClickTo} class="slds-m-left_x-small"></lightning-button>
+                        </div>
+                        <div class="slds-col">
+                            <template if:true={toIsValid}>
+                                <div class="slds-align_absolute-center slds-text-color_success" style="height:5rem">Address is Valid</div>
+                            </template>
+                            <template if:false={toIsValid}>
+                                <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">Address is Invalid, please check the details</div>
+                            </template>
+                        </div>
+                    </div>
+                    </lightning-tab>
+                </template>
+                <template if:true={isSelectStep3}>
+                    <lightning-tab label="See Rates">
+                        <template if:true={bothAddressesAreValid}>
+                            Both Addresses are valid!
+                            Content here
+                        </template>
+                        <template if:false={bothAddressesAreValid}>
+                            <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">An Address is Invalid, please check the details and validate both addresses to proceed.</div>
+                        </template>
+                    </lightning-tab>
+                </template>
+                <template if:true={isSelectStep4}>
+                    <lightning-tab label="Item Four">
+                        Four Content !
+                    </lightning-tab>
+                </template>
+            </lightning-tabset>
+             
+            <div class="slds-m-vertical_medium">
+                <lightning-button label="Back" class="slds-m-left_x-small" onclick={handlePrev}></lightning-button>
+                <template if:false={isSelectStep4}>
+                    <lightning-button variant="brand" class="slds-m-left_x-small" label="Next" onclick={handleNext}></lightning-button>
+                </template>
+                <template if:true={isSelectStep4}>
+                    <lightning-button variant="brand" class="slds-m-left_x-small" label="Finish" onclick={handleFinish}></lightning-button>
+                </template>
+            </div>
+        </div>
+    </div>    
+    
+
+    
+</lightning-card>
+</div>
+</template>
+
+
+    
