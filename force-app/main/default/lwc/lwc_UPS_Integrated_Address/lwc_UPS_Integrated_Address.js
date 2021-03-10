@@ -1,5 +1,6 @@
 import { LightningElement, wire, track, api } from 'lwc';
 import validateAddress from '@salesforce/apex/UPSIntegratedAddress.validateAddress';
+import getRates from '@salesforce/apex/UPSIntegratedAddress.getRates';
 export default class lwc_UPS_Integrated_Address extends LightningElement {
     @track selectedStep = 'Step1';
  
@@ -38,6 +39,43 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
     handleFinish() {
         alert('Finished...');
         this.selectedStep = 'Step1';
+        this.fromAddress = {
+            street: '',
+            city: '',
+            state: '',
+            postalCode: '',
+            country: 'US',
+        };;
+        this.toAddress = {
+            street: '',
+            city: '',
+            state: '',
+            postalCode: '',
+            country: 'US',
+        };
+        this.fromIsValid = false;
+        this.toIsValid = false;
+        this.details = {
+            shipperName: '',
+            shipToName: '',
+            serviceType: '',
+            packageWeight: '',
+            packageLength: '',
+            packageWidth: '',
+            packageHeight: ''
+        };
+        this.detailsAreValid = false;
+        this.rateData = {
+            BillingWeight: {
+                Weight: ''
+            },
+            Alerts: [],
+            Charges:{
+                Total: '',
+                CurrencyCode: 'USD'
+            }
+    
+        }
     }
       
     selectStep1() {
@@ -76,11 +114,16 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
         return this.selectedStep === "Step4";
     }
 
+    @api
+    get isStep4andIsValidated() {
+        return this.selectedStep === "Step4" && this.detailsAreValid;
+    }
+
     @api error = undefined;
     @api fromError = undefined;
     @api toError = undefined;
-    @api toIsValid = undefined;
-    @api fromIsValid = undefined;
+    @api toIsValid = false;
+    @api fromIsValid = false;
 
     @track fromAddress = {
         street: '',
@@ -113,22 +156,11 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
                 console.log(element.name);
                 console.log(element.value);
                 this.fromAddress[element.name] = element.value;
-                /*if(element.name == 'street'){
-                    this.fromAddress.street = element.value;
-                }else if(element.name == 'city'){
-                    this.fromAddress.city = element.value;
-                }else if(element.name == 'state'){
-                    this.fromAddress.state = element.value;
-                }else if(element.name == 'postalCode'){
-                    this.fromAddress.postalCode = element.value;
-                }*/
+
             });
             console.log(this.fromAddress);
             this.handleCalloutFromAddress();
-        } /* else {
-            alert('Please update the invalid form entries and try again.');
-        } */
-        
+        } 
     }
 
     handleClickTo(event){
@@ -146,21 +178,10 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
                 console.log(element.name);
                 console.log(element.value);
                 this.toAddress[element.name] = element.value;
-                /*if(element.name == 'street'){
-                    this.toAddress.street = element.value;
-                }else if(element.name == 'city'){
-                    this.toAddress.city = element.value;
-                }else if(element.name == 'state'){
-                    this.toAddress.state = element.value;
-                }else if(element.name == 'postalCode'){
-                    this.toAddress.postalCode = element.value;
-                }*/
             });
             console.log(this.toAddress);
             this.handleCalloutToAddress();
-        } /* else {
-            alert('Please update the invalid form entries and try again.');
-        } */
+        } 
     }
     
     handleCalloutFromAddress(){
@@ -239,6 +260,102 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
 
     get bothAddressesAreValid(){
         return this.fromIsValid && this.toIsValid;
+    }
+    
+    @api detailsAreValid = false;
+
+    get options() {
+        return [
+            { value: "02:UPS 2nd Day Air", label: "UPS 2nd Day Air"},
+            { value: "59:UPS 2nd Day Air A.M.", label: "UPS 2nd Day Air A.M."},
+            { value: "12:UPS 3 Day Select", label: "UPS 3 Day Select"},
+            { value: "03:UPS Ground", label: "UPS Ground"},
+            { value: "01:UPS Next Day Air", label: "UPS Next Day Air"},
+            { value: "14:UPS Next Day Air Early", label: "UPS Next Day Air Early"},    
+            { value: "13:UPS Next Day Air Saver", label: "UPS Next Day Air Saver"},
+            { value: "75:UPS Heavy Goods", label: "UPS Heavy Goods"} 
+        ];
+    }
+
+    handleServiceTypeChange(event) {
+        this.value = event.detail.value;
+    }
+
+    @track details = {
+        shipperName: '',
+        shipToName: '',
+        serviceType: '',
+        packageWeight: '',
+        packageLength: '',
+        packageWidth: '',
+        packageHeight: ''
+    };
+
+    handleClickDetails(event){
+        console.log(event.target.label);
+        const allValid = [...this.template.querySelectorAll('.details')]
+            .reduce((validSoFar, inputCmp) => {
+                        inputCmp.reportValidity();
+                        return validSoFar && inputCmp.checkValidity();
+            }, true);
+        if (allValid) {
+            var input = this.template.querySelectorAll('.details');
+            console.log(input);
+            this.fromAddress.country = 'US';
+            input.forEach(element => {
+                console.log(element.name);
+                console.log(element.value);
+                this.details[element.name] = element.value;
+            });
+            console.log(this.details);
+            this.callGetRates();
+        }
+    }
+
+    @api detailsError = undefined;
+    @track rateData = {
+        BillingWeight: {
+            Weight: ''
+        },
+        Alerts: [],
+        Charges:{
+            Total: '',
+            CurrencyCode: 'USD'
+        }
+
+    }
+
+    callGetRates(){
+        console.log(this.details);
+        getRates({details : this.details, toAddress : this.toAddress, fromAddress: this.fromAddress})
+        .then(result => {
+            console.log(result);
+            const data = JSON.parse(result);
+            console.log(data);
+            if(data.response != undefined && Array.isArray(data.response.errors)){
+                this.detailsError = response.errors[0].message;
+                this.detailsAreValid = false;
+            }else if(data.RateResponse != undefined){
+                if(data.RateResponse.Response.ResponseStatus.Description == 'Success'){
+                    this.detailsError = undefined;
+                    this.detailsAreValid = true;
+                    this.rateData.BillingWeight.Weight = data.RateResponse.RatedShipment.BillingWeight.Weight;
+                    this.rateData.Alerts = data.RateResponse.RatedShipment.RatedShipmentAlert;
+                    this.rateData.Charges.Total = data.RateResponse.RatedShipment.TotalCharges.MonetaryValue;
+                }else{
+                    this.detailsAreValid = false;
+                }
+            }
+
+        })
+        .catch(error => {
+            this.detailsAreValid = false;
+            if(typeof error == 'object'){
+                this.detailsError = error.body.message;
+            }else{
+                this.detailsError = error;
+            }
+        });
     }
 }
 

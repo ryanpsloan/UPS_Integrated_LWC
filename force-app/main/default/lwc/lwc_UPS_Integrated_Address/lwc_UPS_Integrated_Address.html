@@ -42,7 +42,7 @@
                         </div>
                         <div class="slds-col">
                             <template if:true={fromIsValid}>
-                                <div class="slds-align_absolute-center slds-text-color_success" style="height:5rem">Address is Valid</div>
+                                <div class="slds-align_absolute-center slds-text-color_success" style="height:5rem">Address is Valid, click 'Next' to go to the next step</div>
                             </template>
                             <template if:false={fromIsValid}>
                                 <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">Address is Invalid, please check the details</div>
@@ -79,7 +79,7 @@
                         </div>
                         <div class="slds-col">
                             <template if:true={toIsValid}>
-                                <div class="slds-align_absolute-center slds-text-color_success" style="height:5rem">Address is Valid</div>
+                                <div class="slds-align_absolute-center slds-text-color_success" style="height:5rem">Address is Valid, Click 'Next' to go to the next step</div>
                             </template>
                             <template if:false={toIsValid}>
                                 <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">Address is Invalid, please check the details</div>
@@ -89,10 +89,84 @@
                     </lightning-tab>
                 </template>
                 <template if:true={isSelectStep3}>
-                    <lightning-tab label="See Rates">
+                    <lightning-tab label="Provide Shipment Details">
                         <template if:true={bothAddressesAreValid}>
-                            Both Addresses are valid!
-                            Content here
+                            <div class="c-container">
+                                <lightning-layout>
+                                    <lightning-layout-item padding="horizontal-medium">
+                                        <div class="slds-grid slds-grid_vertical">
+                                            <div class="slds-col slds-p-vertical_xx-large">
+                                                <h3>Shipping From</h3>
+                                                <lightning-formatted-address
+                                                    street={fromAddress.street}
+                                                    city={fromAddress.city}
+                                                    country={fromAddress.country}
+                                                    province={fromAddress.state}
+                                                    postal-code={fromAddress.postalCode}
+                                                ></lightning-formatted-address>
+                                            </div>
+                                            <div class="slds-col slds-p-vertical_xx-large">
+                                                <h3>Shipping To</h3>
+                                                <lightning-formatted-address
+                                                    street={toAddress.street}
+                                                    city={toAddress.city}
+                                                    country={toAddress.country}
+                                                    province={toAddress.state}
+                                                    postal-code={toAddress.postalCode}
+                                                ></lightning-formatted-address>
+                                            </div>
+                                        </div>      
+                                    </lightning-layout-item>
+                                    <lightning-layout-item padding="horizontal-medium">
+                                        <div class="slds-grid slds-grid_vertical">
+                                            <div class="slds-col">
+                                                <template if:true={detailsError}>
+                                                    <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">{detailsError}</div>
+                                                </template>
+                                            </div>
+                                            <div class="slds-col">
+                                                <div class="slds-p-around_medium lgc-bg">
+                                                    <lightning-input class="details shipperName" type="text" label="Shipper Name" placeholder="Enter Shipper Name" name="shipperName" value={details.shipperName} required></lightning-input>
+                                                </div>
+                                                <div class="slds-p-around_medium lgc-bg">
+                                                    <lightning-input class="details shipToName" type="text" label="Shipping To Name" placeholder="Enter Shipping To Name" name="shipToName" value={details.shipToName} required></lightning-input>
+                                                </div>
+                                                <div class="slds-p-around_medium lgc-bg">
+                                                    <lightning-combobox
+                                                        name="serviceType"
+                                                        class="details serviceType"
+                                                        label="Service Type"
+                                                        value={details.serviceType}
+                                                        placeholder="Select Service Type"
+                                                        options={options}
+                                                        onchange={handleServiceTypeChange}
+                                                        required></lightning-combobox>
+                                                </div>
+                                                <div class="slds-p-around_medium lgc-bg">
+                                                    <lightning-input class="details packageWeight" type="text" label="Package Weight (in pounds)" placeholder="Enter Package Weight" name="packageWeight"  value={details.packageWeight} required></lightning-input>
+                                                </div>
+                                                <div class="slds-p-around_medium lgc-bg">
+                                                    <h3>Enter Package Measurement Details in Inches</h3>
+                                                    <lightning-input class="details dimensions packageLength" type="text" label="Package Length" placeholder="Enter Length of Package" name="packageLength"  value={details.length} required></lightning-input>
+                                                    <lightning-input class="details dimensions packageWidth" type="text" label="Package Width" placeholder="Enter Width of Package" name="packageWidth"  value={details.width} required></lightning-input>
+                                                    <lightning-input class="details dimensions packageHeight" type="text" label="Package Height" placeholder="Enter Height of Package" name="packageHeight"  value={details.height} required></lightning-input>
+                                                </div>
+                                                
+                                                <lightning-button label="Submit Details To See Rates" onclick={handleClickDetails} class="slds-m-left_x-small"></lightning-button>
+                                          
+                                            </div>
+                                            <div class="slds-col">
+                                                <template if:true={detailsAreValid}>
+                                                    <div class="slds-align_absolute-center slds-text-color_success" style="height:5rem">Details successfully submitted. Click 'Next' to see your rate information.</div>
+                                                </template>
+                                                <template if:false={detailsAreValid}>
+                                                    <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">Details were not submitted successfully. Please check the details and try again.</div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </lightning-layout-item>
+                                </lightning-layout>
+                            </div>        
                         </template>
                         <template if:false={bothAddressesAreValid}>
                             <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">An Address is Invalid, please check the details and validate both addresses to proceed.</div>
@@ -100,8 +174,32 @@
                     </lightning-tab>
                 </template>
                 <template if:true={isSelectStep4}>
-                    <lightning-tab label="Item Four">
-                        Four Content !
+                    <lightning-tab label="Get Rates">
+                        <template if:true={detailsAreValid}>
+                            <div class="slds-grid slds-grid_vertical">
+                                <div class="slds-col">
+                                    <h3>Alerts and Disclaimers</h3>
+                                    <ul class="slds-m-around_medium">
+                                        <template for:each={rateData.Alerts} for:item="alert">
+                                            <li key={alert.Code}>
+                                                <div class="slds-text-color_error">{alert.Description}</div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                                <div class="slds-col">
+                                    <h3>Total Shipping Cost in '{rateData.Charges.CurrencyCode}'</h3>
+                                    <p>$<lightning-formatted-text value={rateData.Charges.Total}></lightning-formatted-text></p>
+                                </div>
+                                <div class="slds-col">    
+                                    <h3>Billed Weight</h3>
+                                    <p><lightning-formatted-text value={rateData.BillingWeight.Weight}></lightning-formatted-text></p>
+                                </div>
+                            </div>
+                        </template>
+                        <template if:false={detailsAreValid}>
+                            <div class="slds-align_absolute-center slds-text-color_error" style="height:5rem">Rates could not be displayed. Please provide all Shipment Details and Validate To and From Addresses.</div>
+                        </template>
                     </lightning-tab>
                 </template>
             </lightning-tabset>
@@ -111,15 +209,12 @@
                 <template if:false={isSelectStep4}>
                     <lightning-button variant="brand" class="slds-m-left_x-small" label="Next" onclick={handleNext}></lightning-button>
                 </template>
-                <template if:true={isSelectStep4}>
+                <template if:true={isStep4andIsValidated}>
                     <lightning-button variant="brand" class="slds-m-left_x-small" label="Finish" onclick={handleFinish}></lightning-button>
                 </template>
             </div>
         </div>
     </div>    
-    
-
-    
 </lightning-card>
 </div>
 </template>
