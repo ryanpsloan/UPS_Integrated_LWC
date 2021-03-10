@@ -119,7 +119,6 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
         return this.selectedStep === "Step4" && this.detailsAreValid;
     }
 
-    @api error = undefined;
     @api fromError = undefined;
     @api toError = undefined;
     @api toIsValid = false;
@@ -214,7 +213,11 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
             console.log(typeof error);
             this.fromIsValid = false;
             if(typeof error == 'object'){
-                this.fromError = error.body.message;
+                if(error.body != undefined){
+                    this.fromError = error.body.message;
+                }else if(error.response != undefined && Array.isArray(error.response.errors)){
+                    this.fromError = error.response.errors[0].message
+                }
             }else{
                 this.fromError = error;
             }
@@ -251,7 +254,11 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
             console.log(typeof error);
             this.toIsValid = false;
             if(typeof error == 'object'){
-                this.toError = error.body.message;
+                if(error.body != undefined){
+                    this.toError = error.body.message;
+                }else if(error.response != undefined && Array.isArray(error.response.errors)){
+                    this.toError = error.response.errors[0].message
+                }
             }else{
                 this.toError = error;
             }
@@ -290,6 +297,10 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
         packageWidth: '',
         packageHeight: ''
     };
+
+    get serviceType(){
+        return this.details.serviceType.substring(3)
+    }
 
     handleClickDetails(event){
         console.log(event.target.label);
@@ -333,7 +344,7 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
             const data = JSON.parse(result);
             console.log(data);
             if(data.response != undefined && Array.isArray(data.response.errors)){
-                this.detailsError = response.errors[0].message;
+                this.detailsError = data.response.errors[0].message;
                 this.detailsAreValid = false;
             }else if(data.RateResponse != undefined){
                 if(data.RateResponse.Response.ResponseStatus.Description == 'Success'){
@@ -351,7 +362,11 @@ export default class lwc_UPS_Integrated_Address extends LightningElement {
         .catch(error => {
             this.detailsAreValid = false;
             if(typeof error == 'object'){
-                this.detailsError = error.body.message;
+                if(error.body != undefined){
+                    this.detailsError = error.body.message;
+                }else if(error.response != undefined && Array.isArray(error.response.errors)){
+                    this.detailsError = error.response.errors[0].message
+                }
             }else{
                 this.detailsError = error;
             }

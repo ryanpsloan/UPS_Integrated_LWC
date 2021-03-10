@@ -147,9 +147,9 @@
                                                 </div>
                                                 <div class="slds-p-around_medium lgc-bg">
                                                     <h3>Enter Package Measurement Details in Inches</h3>
-                                                    <lightning-input class="details dimensions packageLength" type="text" label="Package Length" placeholder="Enter Length of Package" name="packageLength"  value={details.length} required></lightning-input>
-                                                    <lightning-input class="details dimensions packageWidth" type="text" label="Package Width" placeholder="Enter Width of Package" name="packageWidth"  value={details.width} required></lightning-input>
-                                                    <lightning-input class="details dimensions packageHeight" type="text" label="Package Height" placeholder="Enter Height of Package" name="packageHeight"  value={details.height} required></lightning-input>
+                                                    <lightning-input class="details dimensions packageLength" type="text" label="Package Length" placeholder="Enter Length of Package" name="packageLength"  value={details.packageLength} required></lightning-input>
+                                                    <lightning-input class="details dimensions packageWidth" type="text" label="Package Width" placeholder="Enter Width of Package" name="packageWidth"  value={details.packageWidth} required></lightning-input>
+                                                    <lightning-input class="details dimensions packageHeight" type="text" label="Package Height" placeholder="Enter Height of Package" name="packageHeight"  value={details.packageHeight} required></lightning-input>
                                                 </div>
                                                 
                                                 <lightning-button label="Submit Details To See Rates" onclick={handleClickDetails} class="slds-m-left_x-small"></lightning-button>
@@ -187,13 +187,17 @@
                                         </template>
                                     </ul>
                                 </div>
-                                <div class="slds-col">
+                                <div class="slds-col slds-p-around_medium">
                                     <h3>Total Shipping Cost in '{rateData.Charges.CurrencyCode}'</h3>
                                     <p>$<lightning-formatted-text value={rateData.Charges.Total}></lightning-formatted-text></p>
                                 </div>
-                                <div class="slds-col">    
+                                <div class="slds-col slds-p-around_medium">    
                                     <h3>Billed Weight</h3>
                                     <p><lightning-formatted-text value={rateData.BillingWeight.Weight}></lightning-formatted-text></p>
+                                </div>
+                                <div class="slds-col slds-p-around_medium">
+                                    <h3>Service Type</h3>
+                                    <p><lightning-formatted-text value={serviceType}></lightning-formatted-text></p>
                                 </div>
                             </div>
                         </template>
